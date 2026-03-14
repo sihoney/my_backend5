@@ -1,10 +1,10 @@
-package org.example.product.service;
+package org.example.product.application.service;
 
-import lombok.RequiredArgsConstructor;
+import org.example.product.application.port.out.ProductPersistencePort;
 import org.example.product.domain.Product;
-import org.example.product.dto.CreateProductRequest;
-import org.example.product.dto.UpdateProductRequest;
-import org.example.product.repository.ProductRepository;
+import org.example.product.adapter.in.web.dto.CreateProductRequest;
+import org.example.product.adapter.in.web.dto.UpdateProductRequest;
+import org.example.product.application.port.in.ProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,18 +15,17 @@ import java.util.UUID;
 
 @Service
 @Transactional(readOnly = true)
-//@RequiredArgsConstructor
-public class ProductServiceImpl implements ProductService{
+public class ProductServiceImpl implements ProductService {
 
-    private final ProductRepository productRepository;
+    private final ProductPersistencePort productPersistencePort;
 
-    public ProductServiceImpl(ProductRepository productRepository) {
-        this.productRepository = productRepository;
+    public ProductServiceImpl(ProductPersistencePort productPersistencePort) {
+        this.productPersistencePort = productPersistencePort;
     }
 
     @Override
     public List<Product> getAll() {
-        return productRepository.findAll();
+        return productPersistencePort.findAll();
     }
 
     @Override
@@ -47,7 +46,7 @@ public class ProductServiceImpl implements ProductService{
                 toUuid(request.creatorId(), "creatorId")
         );
 
-        return productRepository.save(product);
+        return productPersistencePort.save(product);
     }
 
     @Override
@@ -70,11 +69,11 @@ public class ProductServiceImpl implements ProductService{
     @Override
     public void delete(UUID productId) {
         Product product = findByIdOrThrow(productId);
-        productRepository.delete(product);
+        productPersistencePort.delete(product);
     }
 
     private Product findByIdOrThrow(UUID productId) {
-        return productRepository.findById(productId)
+        return productPersistencePort.findById(productId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
     }
 

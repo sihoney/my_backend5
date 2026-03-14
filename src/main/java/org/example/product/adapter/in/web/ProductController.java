@@ -1,4 +1,4 @@
-package org.example.product.controller;
+package org.example.product.adapter.in.web;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -6,11 +6,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
 import org.example.product.domain.Product;
-import org.example.product.dto.CreateProductRequest;
-import org.example.product.dto.UpdateProductRequest;
-import org.example.product.service.ProductService;
+import org.example.product.adapter.in.web.dto.CreateProductRequest;
+import org.example.product.adapter.in.web.dto.UpdateProductRequest;
+import org.example.product.application.port.in.ProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

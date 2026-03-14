@@ -1,8 +1,8 @@
-package org.example.product.service;
+package org.example.product.application.port.in;
 
 import org.example.product.domain.Product;
-import org.example.product.dto.CreateProductRequest;
-import org.example.product.dto.UpdateProductRequest;
+import org.example.product.adapter.in.web.dto.CreateProductRequest;
+import org.example.product.adapter.in.web.dto.UpdateProductRequest;
 
 import java.util.List;
 import java.util.UUID;
