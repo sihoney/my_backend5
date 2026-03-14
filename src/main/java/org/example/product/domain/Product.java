@@ -2,6 +2,7 @@ package org.example.product.domain;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import java.math.BigDecimal;
@@ -10,6 +11,7 @@ import java.util.UUID;
 
 @Entity
 @Getter
+@Setter
 @Table(name = "\"product\"", schema = "public")
 public class Product {
 
