@@ -87,8 +87,18 @@ public class SettlementBatchConfig {
         return orderId -> "SETTLEMENT_LINE(orderId=" + orderId + ", date=" + LocalDate.now() + ")";
     }
 
+//    SETTLEMENT_LINE(orderId=1001, date=2026-03-15)
+//    SETTLEMENT_LINE(orderId=1002, date=2026-03-15)
+//    SETTLEMENT_LINE(orderId=1003, date=2026-03-15)
+//    SETTLEMENT_LINE(orderId=1003, date=2026-03-15)
+//    SETTLEMENT_LINE(orderId=1005, date=2026-03-15)
+
     @Bean
     public ItemWriter<String> settlementChunkWriter() {
         return chunk -> chunk.forEach(line -> log.info("Chunk writer persisted: {}", line));
     }
+
+//    Chunk writer persisted: SETTLEMENT_LINE(orderId=1001, date=2026-03-15)
+//    Chunk writer persisted: SETTLEMENT_LINE(orderId=1002, date=2026-03-15)
+//    ...
 }

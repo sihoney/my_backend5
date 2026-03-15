@@ -63,4 +63,23 @@ public class SettlementJobLauncher {
                 .addLong("requestedAt", System.currentTimeMillis())
                 .toJobParameters();
     }
+
+//    Job: [SimpleJob: [name=settlementChunkJob]] launched with the following parameters
+//    : [{JobParameter{
+//          name='mode',
+//          value=chunk,
+//          type=class java.lang.String,
+//          identifying=true
+//     },JobParameter{
+//          name='requestedAt',
+//          value=1773584338854,
+//          type=class java.lang.Long,
+//          identifying=true
+//     },JobParameter{
+//          name='settlementDate',
+//          value=2026-03-15,
+//          type=class java.lang.String,
+//          identifying=true
+//     }}]
+
 }
