@@ -10,4 +10,6 @@ public interface MemberRepository {
     Member save(Member member);
 
     boolean findByPhone(String phone);
+
+    boolean findByEmail(String email);
 }
