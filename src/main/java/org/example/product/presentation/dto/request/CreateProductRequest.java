@@ -1,4 +1,4 @@
-package org.example.product.adapter.in.web.dto;
+package org.example.product.presentation.dto.request;
 
 import java.math.BigDecimal;
 

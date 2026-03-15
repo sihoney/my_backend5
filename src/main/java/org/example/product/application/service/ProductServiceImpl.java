@@ -1,10 +1,10 @@
 package org.example.product.application.service;
 
-import org.example.product.application.port.out.ProductPersistencePort;
-import org.example.product.domain.Product;
-import org.example.product.adapter.in.web.dto.CreateProductRequest;
-import org.example.product.adapter.in.web.dto.UpdateProductRequest;
-import org.example.product.application.port.in.ProductService;
+import org.example.product.application.dto.CreateProductInput;
+import org.example.product.application.dto.UpdateProductInput;
+import org.example.product.domain.repository.ProductRepository;
+import org.example.product.domain.model.Product;
+import org.example.product.application.usecase.ProductUsecase;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,11 +15,11 @@ import java.util.UUID;
 
 @Service
 @Transactional(readOnly = true)
-public class ProductServiceImpl implements ProductService {
+public class ProductServiceImpl implements ProductUsecase {
 
-    private final ProductPersistencePort productPersistencePort;
+    private final ProductRepository productPersistencePort;
 
-    public ProductServiceImpl(ProductPersistencePort productPersistencePort) {
+    public ProductServiceImpl(ProductRepository productPersistencePort) {
         this.productPersistencePort = productPersistencePort;
     }
 
@@ -35,15 +35,15 @@ public class ProductServiceImpl implements ProductService {
 
     @Transactional
     @Override
-    public Product create(CreateProductRequest request) {
+    public Product create(CreateProductInput input) {
         Product product = Product.create(
-                toUuid(request.sellerId(), "sellerId"),
-                request.name(),
-                request.description(),
-                request.price(),
-                request.stock(),
-                request.status(),
-                toUuid(request.creatorId(), "creatorId")
+                toUuid(input.sellerId(), "sellerId"),
+                input.name(),
+                input.description(),
+                input.price(),
+                input.stock(),
+                input.status(),
+                toUuid(input.creatorId(), "creatorId")
         );
 
         return productPersistencePort.save(product);
@@ -52,16 +52,16 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product update(
             UUID productId,
-            UpdateProductRequest request
+            UpdateProductInput input
     ) {
         Product product = findByIdOrThrow(productId);
         product.update(
-                request.name(),
-                request.description(),
-                request.price(),
-                request.stock(),
-                request.status(),
-                toUuid(request.modifierId(), "modifierId")
+                input.name(),
+                input.description(),
+                input.price(),
+                input.stock(),
+                input.status(),
+                toUuid(input.modifierId(), "modifierId")
         );
         return product;
     }

@@ -1,7 +1,7 @@
-package org.example.product.adapter.out.persistence;
+package org.example.product.infra.persistence;
 
-import org.example.product.application.port.out.ProductPersistencePort;
-import org.example.product.domain.Product;
+import org.example.product.domain.model.Product;
+import org.example.product.domain.repository.ProductRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -9,11 +9,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public class ProductPersistenceAdapter implements ProductPersistencePort {
+public class ProductRepositoryAdapter implements ProductRepository {
 
     private final ProductJpaRepository productJpaRepository;
 
-    public ProductPersistenceAdapter(ProductJpaRepository productJpaRepository) {
+    public ProductRepositoryAdapter(ProductJpaRepository productJpaRepository) {
         this.productJpaRepository = productJpaRepository;
     }
 
