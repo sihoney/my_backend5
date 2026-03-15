@@ -5,6 +5,7 @@ import org.example.order.domain.model.Order;
 import org.example.order.domain.repository.OrderRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
@@ -83,6 +84,7 @@ public class SettlementBatchConfig {
     }
 
     @Bean
+    @StepScope
     public ItemReader<Order> settlementChunkReader(
             OrderRepository orderRepository,
             @Value("#{jobParameters['settlementDate']}") String settlementDateRaw
