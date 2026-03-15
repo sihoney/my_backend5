@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.example.member.application.usecase.MemberUsecase;
+import org.example.member.presentation.dto.request.LoginRequest;
 import org.example.member.presentation.dto.request.MemberReq;
 import org.example.member.presentation.dto.response.MemberAdmRes;
 import org.example.member.presentation.dto.response.MemberRes;
@@ -45,5 +46,15 @@ public class MemberController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(memberUseCase.save(memberReq));
+    }
+
+    @PostMapping("login")
+    @Operation(summary="로그인", description="")
+    public ResponseEntity<Boolean> login(
+            @RequestBody LoginRequest request
+    ){
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(memberUseCase.login(request));
     }
 }

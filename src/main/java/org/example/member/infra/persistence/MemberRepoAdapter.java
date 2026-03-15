@@ -6,6 +6,7 @@ import org.example.member.domain.repository.MemberRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -29,7 +30,12 @@ public class MemberRepoAdapter implements MemberRepository {
     }
 
     @Override
-    public boolean findByEmail(String email) {
-        return memberJpaRepository.findByEmail(email).isPresent();
+    public boolean existsByEmail(String email) {
+        return memberJpaRepository.existsByEmail(email);
+    }
+
+    @Override
+    public Optional<Member> findByEmail(String email) {
+        return memberJpaRepository.findByEmail(email);
     }
 }

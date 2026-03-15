@@ -4,9 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.member.application.exception.DuplicateEmailException;
 import org.example.member.application.exception.DuplicatePhoneException;
+import org.example.member.application.exception.MemberNotFoundException;
 import org.example.member.application.usecase.MemberUsecase;
 import org.example.member.domain.model.Member;
 import org.example.member.domain.repository.MemberRepository;
+import org.example.member.presentation.dto.request.LoginRequest;
 import org.example.member.presentation.dto.request.MemberReq;
 import org.example.member.presentation.dto.response.MemberAdmRes;
 import org.example.member.presentation.dto.response.MemberRes;
@@ -26,6 +28,7 @@ import java.util.List;
 public class MemberService implements MemberUsecase {
 
     private final MemberRepository memberRepository;
+    private final PasswordEncoder encoder = new BCryptPasswordEncoder();
 
     @Override
     public List<MemberRes> findAll() {
@@ -49,10 +52,8 @@ public class MemberService implements MemberUsecase {
             throw new DuplicatePhoneException("이미 존재하는 전화번호입니다.");
         }
 
-        if(memberRepository.findByEmail(memberReq.email())) {
-//            throw new IllegalArgumentException("이미 존재하는 전화번호입니다.");
-            throw new DuplicateEmailException("이미 존재하는 전화번호입니다.");
-        }
+        memberRepository.findByEmail(memberReq.email())
+                .orElseThrow(() -> new DuplicateEmailException("이미 존재하는 전화번호입니다."));
 
         // 1. salt 생성
         // salt: 비밀번호를 해싱할 때 랜덤 값을 추가하는 것
@@ -67,13 +68,27 @@ public class MemberService implements MemberUsecase {
         log.info("saltkey : {}", member.getSaltKey());
 
         // 3. 비밀번호 + salt 결합 후 해싱
-        PasswordEncoder encoder = new BCryptPasswordEncoder();
+//        PasswordEncoder encoder = new BCryptPasswordEncoder();
         member.setPassword(encoder.encode(memberReq.password()+member.getSaltKey()));
 
         // 4. 회원 저장
         memberRepository.save(member);
         return new MemberRes(
                 member.getId(), member.getName(), member.getAddress());
+    }
+
+    @Override
+    public Boolean login(LoginRequest request) {
+        Member member = memberRepository.findByEmail(request.email())
+                .orElseThrow(() -> new MemberNotFoundException("이메일에 부합하는 사용자가 없습니다."));
+
+        if(encoder.matches(
+                request.password() + member.getSaltKey(),
+                member.getPassword())
+        ){
+            return true;
+        }
+        return false;
     }
 
     private MemberRes changeMemberResType(Member member){

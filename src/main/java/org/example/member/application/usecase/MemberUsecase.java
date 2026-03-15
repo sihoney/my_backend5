@@ -1,5 +1,6 @@
 package org.example.member.application.usecase;
 
+import org.example.member.presentation.dto.request.LoginRequest;
 import org.example.member.presentation.dto.request.MemberReq;
 import org.example.member.presentation.dto.response.MemberAdmRes;
 import org.example.member.presentation.dto.response.MemberRes;
@@ -12,4 +13,6 @@ public interface MemberUsecase {
     List<MemberAdmRes> findAdmAll();
 
     MemberRes save(MemberReq memberReq);
+
+    Boolean login(LoginRequest request);
 }

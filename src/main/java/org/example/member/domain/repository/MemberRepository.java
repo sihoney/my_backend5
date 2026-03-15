@@ -3,6 +3,7 @@ package org.example.member.domain.repository;
 import org.example.member.domain.model.Member;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface MemberRepository {
     List<Member> findAll();
@@ -11,5 +12,7 @@ public interface MemberRepository {
 
     boolean findByPhone(String phone);
 
-    boolean findByEmail(String email);
+    boolean existsByEmail(String email);
+
+    Optional<Member> findByEmail(String email);
 }
