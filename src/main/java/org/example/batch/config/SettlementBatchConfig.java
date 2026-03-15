@@ -1,6 +1,8 @@
 package org.example.batch.config;
 
 import org.example.batch.job.SettlementTasklet;
+import org.example.order.domain.model.Order;
+import org.example.order.domain.repository.OrderRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.job.Job;
@@ -12,12 +14,15 @@ import org.springframework.batch.infrastructure.item.ItemProcessor;
 import org.springframework.batch.infrastructure.item.ItemReader;
 import org.springframework.batch.infrastructure.item.ItemWriter;
 import org.springframework.batch.infrastructure.item.support.ListItemReader;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Configuration
 public class SettlementBatchConfig {
@@ -64,12 +69,12 @@ public class SettlementBatchConfig {
     public Step settlementChunkStep(
             JobRepository jobRepository,
             PlatformTransactionManager transactionManager,
-            ItemReader<Integer> settlementChunkReader,
-            ItemProcessor<Integer, String> settlementChunkProcessor,
-            ItemWriter<String> settlementChunkWriter
+            ItemReader<Order> settlementChunkReader,
+            ItemProcessor<Order, SettlementLine> settlementChunkProcessor,
+            ItemWriter<SettlementLine> settlementChunkWriter
     ) {
         return new StepBuilder(SETTLEMENT_CHUNK_STEP_NAME, jobRepository)
-                .<Integer, String>chunk(3)
+                .<Order, SettlementLine>chunk(100)
                 .transactionManager(transactionManager)
                 .reader(settlementChunkReader)
                 .processor(settlementChunkProcessor)
@@ -78,13 +83,36 @@ public class SettlementBatchConfig {
     }
 
     @Bean
-    public ItemReader<Integer> settlementChunkReader() {
-        return new ListItemReader<>(List.of(1001, 1002, 1003, 1004, 1005));
+    public ItemReader<Order> settlementChunkReader(
+            OrderRepository orderRepository,
+            @Value("#{jobParameters['settlementDate']}") String settlementDateRaw
+    ) {
+//        return new ListItemReader<>(List.of(1001, 1002, 1003, 1004, 1005));
+
+        LocalDate settlementDate = parseSettlementDate(settlementDateRaw);
+        LocalDateTime fromInclusive = settlementDate.atStartOfDay();
+        LocalDateTime toExclusive = fromInclusive.plusDays(1);
+
+        List<Order> orders = orderRepository.findUnsettledPaidOrders(fromInclusive, toExclusive);
+
+        log.info("Chunk reader loaded {} orders for settlementDate={}", orders.size(), settlementDate);
+
+        return new ListItemReader<>(orders);
     }
 
     @Bean
-    public ItemProcessor<Integer, String> settlementChunkProcessor() {
-        return orderId -> "SETTLEMENT_LINE(orderId=" + orderId + ", date=" + LocalDate.now() + ")";
+    public ItemProcessor<Order, SettlementLine> settlementChunkProcessor() {
+        return order -> new SettlementLine(
+                order.getId(),
+                order.getOrderNo(),
+                order.getSellerId(),
+                order.getGrossAmount(),
+                order.getFeeAmount(),
+                order.getRefundAmount(),
+                order.getNetAmount(),
+                order.getPaidAt()
+        );
+        //        return orderId -> "SETTLEMENT_LINE(orderId=" + orderId + ", date=" + LocalDate.now() + ")";
     }
 
 //    SETTLEMENT_LINE(orderId=1001, date=2026-03-15)
@@ -94,11 +122,44 @@ public class SettlementBatchConfig {
 //    SETTLEMENT_LINE(orderId=1005, date=2026-03-15)
 
     @Bean
-    public ItemWriter<String> settlementChunkWriter() {
-        return chunk -> chunk.forEach(line -> log.info("Chunk writer persisted: {}", line));
+    public ItemWriter<SettlementLine> settlementChunkWriter() {
+        return chunk -> chunk.forEach(line ->
+                log.info(
+                        "Chunk writer processed orderId={}, orderNo={}, sellerId={}, gross={}, fee={}, refund={}, net={}, paidAt={}",
+                        line.orderId(),
+                        line.orderNo(),
+                        line.sellerId(),
+                        line.grossAmount(),
+                        line.feeAmount(),
+                        line.refundAmount(),
+                        line.netAmount(),
+                        line.paidAt()
+                )
+        );
+
+        //        return chunk -> chunk.forEach(line -> log.info("Chunk writer persisted: {}", line));
     }
 
 //    Chunk writer persisted: SETTLEMENT_LINE(orderId=1001, date=2026-03-15)
 //    Chunk writer persisted: SETTLEMENT_LINE(orderId=1002, date=2026-03-15)
 //    ...
+
+    private LocalDate parseSettlementDate(String settlementDateRaw) {
+        if (settlementDateRaw == null || settlementDateRaw.isBlank()) {
+            return LocalDate.now();
+        }
+        return LocalDate.parse(settlementDateRaw);
+    }
+
+    public record SettlementLine(
+            UUID orderId,
+            String orderNo,
+            UUID sellerId,
+            java.math.BigDecimal grossAmount,
+            java.math.BigDecimal feeAmount,
+            java.math.BigDecimal refundAmount,
+            java.math.BigDecimal netAmount,
+            LocalDateTime paidAt
+    ) {
+    }
 }
