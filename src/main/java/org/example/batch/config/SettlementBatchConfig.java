@@ -17,7 +17,10 @@ public class SettlementBatchConfig {
     public static final String SETTLEMENT_STEP_NAME = "settlementStep";
 
     @Bean
-    public Job settlementJob(JobRepository jobRepository, Step settlementStep) {
+    public Job settlementJob(
+            JobRepository jobRepository,
+            Step settlementStep
+    ) {
         return new JobBuilder(SETTLEMENT_JOB_NAME, jobRepository)
                 .start(settlementStep)
                 .build();

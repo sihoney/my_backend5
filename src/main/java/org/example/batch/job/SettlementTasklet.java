@@ -18,7 +18,10 @@ public class SettlementTasklet implements Tasklet {
     private static final Logger log = LoggerFactory.getLogger(SettlementTasklet.class);
 
     @Override
-    public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) {
+    public RepeatStatus execute(
+            StepContribution contribution,
+            ChunkContext chunkContext
+    ) {
         String rawDate = Objects.toString(
                 chunkContext.getStepContext().getJobParameters().get("settlementDate"),
                 LocalDate.now().toString()
@@ -34,6 +37,15 @@ public class SettlementTasklet implements Tasklet {
         // TODO: 실제 정산 집계/원장 반영 로직으로 교체
         log.info("Settlement batch step started. settlementDate={}", settlementDate);
         log.info("Settlement batch step finished. settlementDate={}", settlementDate);
+
+        // Job: [SimpleJob: [name=settlementJob]] launched with the following parameters:
+        // Executing step: [settlementStep]
+        //
+        // Settlement batch step started. settlementDate=2026-03-15
+        // Settlement batch step finished. settlementDate=2026-03-15
+        //
+        // Step: [settlementStep] executed in 12ms
+        // Job: [SimpleJob: [name=settlementJob]] completed with the following parameters:
 
         return RepeatStatus.FINISHED;
     }
