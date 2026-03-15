@@ -16,24 +16,51 @@ public class SettlementJobLauncher {
 
     private final JobOperator jobOperator;
     private final Job settlementJob;
+    private final Job settlementChunkJob;
 
     public SettlementJobLauncher(
             JobOperator jobOperator,
-            @Qualifier(SettlementBatchConfig.SETTLEMENT_JOB_NAME) Job settlementJob
+            @Qualifier(SettlementBatchConfig.SETTLEMENT_JOB_NAME) Job settlementJob,
+            @Qualifier(SettlementBatchConfig.SETTLEMENT_CHUNK_JOB_NAME) Job settlementChunkJob
     ) {
         this.jobOperator = jobOperator;
         this.settlementJob = settlementJob;
+        this.settlementChunkJob = settlementChunkJob;
     }
 
     public JobExecution launch(
             LocalDate settlementDate
     ) throws Exception {
-        JobParameters jobParameters = new JobParametersBuilder()
+//        JobParameters jobParameters = new JobParametersBuilder()
+//                .addString("settlementDate", settlementDate.toString())
+//                // 동일 날짜 재실행을 위한 유니크 파라미터
+//                .addLong("requestedAt", System.currentTimeMillis())
+//                .toJobParameters();
+
+        return jobOperator.start(
+                settlementJob,
+                buildJobParameters(settlementDate, "tasklet")
+        );
+    }
+
+    public JobExecution launchChunk(
+            LocalDate settlementDate
+    ) throws Exception {
+        return jobOperator.start(
+                settlementChunkJob,
+                buildJobParameters(settlementDate, "chunk")
+        );
+    }
+
+    private JobParameters buildJobParameters(
+            LocalDate settlementDate,
+            String mode
+    ) {
+        return new JobParametersBuilder()
                 .addString("settlementDate", settlementDate.toString())
+                .addString("mode", mode)
                 // 동일 날짜 재실행을 위한 유니크 파라미터
                 .addLong("requestedAt", System.currentTimeMillis())
                 .toJobParameters();
-
-        return jobOperator.start(settlementJob, jobParameters);
     }
 }
