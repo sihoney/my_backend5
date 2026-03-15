@@ -10,13 +10,13 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ProductUsecase {
-    Product create(CreateProductInput input);
+    Product create(CreateProductRequest request);
 
     List<Product> getAll();
 
     Product getById(UUID productId);
 
-    Product update(UUID productId, UpdateProductInput input);
+    Product update(UUID productId, UpdateProductRequest request);
 
     void delete(UUID productId);
 }

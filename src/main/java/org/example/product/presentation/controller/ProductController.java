@@ -46,15 +46,7 @@ public class ProductController {
             @RequestHeader("X-Actor-Id") UUID actorId,
             @RequestBody CreateProductRequest request
     ) {
-        Product created = productUsecase.create(new CreateProductInput(
-                request.sellerId(),
-                request.name(),
-                request.description(),
-                request.price(),
-                request.stock(),
-                request.status(),
-                actorId.toString()
-        ));
+        Product created = productUsecase.create(request);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -99,14 +91,7 @@ public class ProductController {
             @Parameter(description = "요청자 UUID") @RequestHeader("X-Actor-Id") UUID actorId,
             @Valid @RequestBody UpdateProductRequest request
     ) {
-        Product updated = productUsecase.update(productId, new UpdateProductInput(
-                request.name(),
-                request.description(),
-                request.price(),
-                request.stock(),
-                request.status(),
-                actorId.toString()
-        ));
+        Product updated = productUsecase.update(productId, request);
         return ProductResponse.from(updated);
     }
 

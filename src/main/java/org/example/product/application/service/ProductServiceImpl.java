@@ -5,6 +5,8 @@ import org.example.product.application.dto.UpdateProductInput;
 import org.example.product.domain.repository.ProductRepository;
 import org.example.product.domain.model.Product;
 import org.example.product.application.usecase.ProductUsecase;
+import org.example.product.presentation.dto.request.CreateProductRequest;
+import org.example.product.presentation.dto.request.UpdateProductRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,15 +37,15 @@ public class ProductServiceImpl implements ProductUsecase {
 
     @Transactional
     @Override
-    public Product create(CreateProductInput input) {
+    public Product create(CreateProductRequest request) {
         Product product = Product.create(
-                toUuid(input.sellerId(), "sellerId"),
-                input.name(),
-                input.description(),
-                input.price(),
-                input.stock(),
-                input.status(),
-                toUuid(input.creatorId(), "creatorId")
+                toUuid(request.sellerId(), "sellerId"),
+                request.name(),
+                request.description(),
+                request.price(),
+                request.stock(),
+                request.status(),
+                toUuid(request.creatorId(), "creatorId")
         );
 
         return productPersistencePort.save(product);
@@ -52,16 +54,16 @@ public class ProductServiceImpl implements ProductUsecase {
     @Override
     public Product update(
             UUID productId,
-            UpdateProductInput input
+            UpdateProductRequest request
     ) {
         Product product = findByIdOrThrow(productId);
         product.update(
-                input.name(),
-                input.description(),
-                input.price(),
-                input.stock(),
-                input.status(),
-                toUuid(input.modifierId(), "modifierId")
+                request.name(),
+                request.description(),
+                request.price(),
+                request.stock(),
+                request.status(),
+                toUuid(request.modifierId(), "modifierId")
         );
         return product;
     }
